@@ -2,7 +2,7 @@
 // Editorial and quiet. Pure white, hairline rules, generous whitespace, a
 // monospace order number and a VERTICAL timeline. No colour except ink and one
 // muted grey. Suits studios, stationery, specialty and premium-plain brands.
-const { esc, fmtDateLong, doc } = require("../format");
+const { esc, fmtDateLong, doc, retryLink } = require("../format");
 
 const STYLE = `
   :root{--ink:#101114;--muted:#8b8f98;--line:#e6e7ea;--bad:#b4231f}
@@ -71,4 +71,13 @@ const renderNotFound = ({ biz }) =>
         `<div class="wrap">${header(biz)}<div class="head"><div class="k">Tracking</div><div class="order-no">Not found</div></div><p class="message">This tracking link is invalid or has expired.</p></div>`
     );
 
-module.exports = { key: "minimal", label: "Minimal", description: "Editorial black-and-white, hairline rules, vertical timeline. Premium and quiet.", render, renderNotFound };
+// Shown when the read failed rather than came back empty (see track-controller).
+// Same shell as the not-found page, plus a way to retry.
+const renderError = ({ biz, retry }) =>
+    doc(
+        "Order tracking unavailable",
+        STYLE,
+        `<div class="wrap">${header(biz)}<div class="head"><div class="k">Tracking</div><div class="order-no">Unavailable</div></div><p class="message">We could not load this order just now. Please try again in a moment.</p>${retryLink(retry)}</div>`
+    );
+
+module.exports = { key: "minimal", label: "Minimal", description: "Editorial black-and-white, hairline rules, vertical timeline. Premium and quiet.", render, renderNotFound, renderError };

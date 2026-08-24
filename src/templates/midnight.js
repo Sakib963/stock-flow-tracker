@@ -2,7 +2,7 @@
 // Dark, high-contrast and modern. Near-black canvas, glass card, a glowing mint
 // accent and an oversized order number. Suits tech, gadget, streetwear and
 // anything that wants to feel premium-modern rather than friendly.
-const { esc, fmtDate, icon, progress, doc } = require("../format");
+const { esc, fmtDate, icon, progress, doc, retryLink } = require("../format");
 
 const STYLE = `
   :root{--brand:#4ade80;--glow:rgba(74,222,128,.35);--bad:#fb7185;--bg:#0b0d12;--card:#141822;--line:#242a38;--ink:#eef1f6;--muted:#8b94a7}
@@ -76,4 +76,13 @@ const renderNotFound = ({ biz }) =>
         `<div class="wrap">${header(biz)}<div class="card"><div class="eyebrow">Tracking</div><div class="order-no">Not found</div><p class="message">This tracking link is invalid or has expired.</p></div></div>`
     );
 
-module.exports = { key: "midnight", label: "Midnight", description: "Dark glass card, mint glow, oversized order number. Modern and techy.", render, renderNotFound };
+// Shown when the read failed rather than came back empty (see track-controller).
+// Same shell as the not-found page, plus a way to retry.
+const renderError = ({ biz, retry }) =>
+    doc(
+        "Order tracking unavailable",
+        STYLE,
+        `<div class="wrap">${header(biz)}<div class="card"><div class="eyebrow">Tracking</div><div class="order-no">Unavailable</div><p class="message">We could not load this order just now. Please try again in a moment.</p>${retryLink(retry)}</div></div>`
+    );
+
+module.exports = { key: "midnight", label: "Midnight", description: "Dark glass card, mint glow, oversized order number. Modern and techy.", render, renderNotFound, renderError };

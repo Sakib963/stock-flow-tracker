@@ -58,4 +58,11 @@ const progress = (steps) => {
 const doc = (title, style, body) =>
     `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="robots" content="noindex,nofollow"/><title>${esc(title)}</title><style>${style}</style></head><body>${body}</body></html>`;
 
-module.exports = { esc, fmtDate, fmtDateLong, icon, progress, doc };
+// "Try again" control for the temporarily-unavailable page. One definition works
+// in every template because it borrows the surrounding text colour, so it reads
+// correctly on the light, dark and gradient cards alike. A plain link, so it
+// still works with JS off.
+const retryLink = (href) =>
+    `<a href="${esc(href || "")}" style="display:inline-block;margin-top:18px;padding:10px 22px;border:1.5px solid currentColor;border-radius:999px;color:inherit;font-size:13px;font-weight:600;text-decoration:none;opacity:.75">Try again</a>`;
+
+module.exports = { esc, fmtDate, fmtDateLong, icon, progress, doc, retryLink };

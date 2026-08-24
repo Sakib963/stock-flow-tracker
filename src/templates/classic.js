@@ -1,7 +1,7 @@
 // Template: CLASSIC
 // Light, neutral, courier-standard. White card on grey, horizontal stepper with
 // circular icon nodes, confident blue accent. The safe default for any business.
-const { esc, fmtDate, icon, progress, doc } = require("../format");
+const { esc, fmtDate, icon, progress, doc, retryLink } = require("../format");
 
 const STYLE = `
   :root{--brand:#1a56db;--bad:#ef4444;--ink:#1a1f2e;--muted:#9aa0ad;--line:#eef0f4;--bg:#f5f6f8}
@@ -73,4 +73,13 @@ const renderNotFound = ({ biz }) =>
         `<div class="wrap"><div class="brand">${header(biz)}</div><div class="card"><div class="eyebrow">Tracking</div><div class="order-no">Order not found</div><p class="message">This tracking link is invalid or has expired.</p></div></div>`
     );
 
-module.exports = { key: "classic", label: "Classic", description: "Neutral white card, blue accent, horizontal stepper. Safe for any business.", render, renderNotFound };
+// Shown when the read failed rather than came back empty (see track-controller).
+// Same shell as the not-found page, plus a way to retry.
+const renderError = ({ biz, retry }) =>
+    doc(
+        "Order tracking unavailable",
+        STYLE,
+        `<div class="wrap"><div class="brand">${header(biz)}</div><div class="card"><div class="eyebrow">Tracking</div><div class="order-no">Temporarily unavailable</div><p class="message">We could not load this order just now. Please try again in a moment.</p>${retryLink(retry)}</div></div>`
+    );
+
+module.exports = { key: "classic", label: "Classic", description: "Neutral white card, blue accent, horizontal stepper. Safe for any business.", render, renderNotFound, renderError };

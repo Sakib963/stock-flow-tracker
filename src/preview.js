@@ -3,7 +3,8 @@
 // template in every order state without minting real orders:
 //   GET /preview                      -> index of all templates
 //   GET /preview/:key?state=delivered -> one template (state: confirmed |
-//                                        dispatched | delivered | cancelled | notfound)
+//                                        dispatched | delivered | cancelled |
+//                                        notfound | error)
 const { listTemplates, getTemplate, TEMPLATES } = require("./templates");
 
 const SAMPLE_BIZ = { name: "Anaya Lifestyle", logo: "" };
@@ -73,7 +74,7 @@ const index = (req, res) => {
     return res
         .status(200)
         .send(
-            `<!doctype html><meta charset="utf-8"><title>Tracker templates</title><style>body{font-family:system-ui,sans-serif;max-width:640px;margin:40px auto;padding:0 20px;line-height:1.5}li{margin-bottom:14px}code{background:#eee;padding:1px 5px;border-radius:4px;font-size:12px}small{color:#666}</style><h1>Tracker templates</h1><p>Append <code>?state=confirmed|dispatched|delivered|cancelled|notfound</code> to any link.</p><ul>${rows}</ul>`
+            `<!doctype html><meta charset="utf-8"><title>Tracker templates</title><style>body{font-family:system-ui,sans-serif;max-width:640px;margin:40px auto;padding:0 20px;line-height:1.5}li{margin-bottom:14px}code{background:#eee;padding:1px 5px;border-radius:4px;font-size:12px}small{color:#666}</style><h1>Tracker templates</h1><p>Append <code>?state=confirmed|dispatched|delivered|cancelled|notfound|error</code> to any link.</p><ul>${rows}</ul>`
         );
 };
 
@@ -84,6 +85,9 @@ const one = (req, res) => {
     const biz = { ...SAMPLE_BIZ, template: key };
     const state = String(req.query.state || "dispatched").toLowerCase();
     if (state === "notfound") return res.status(200).send(tpl.renderNotFound({ biz }));
+    // The page a customer gets when the read failed. Worth eyeballing per template:
+    // it is the one state you cannot produce on demand in production.
+    if (state === "error") return res.status(200).send(tpl.renderError({ biz, retry: req.originalUrl }));
     return res.status(200).send(tpl.render({ biz, s: sample(state) }));
 };
 
