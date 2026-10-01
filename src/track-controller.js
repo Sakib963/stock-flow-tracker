@@ -16,6 +16,7 @@
 const pool = require("./db");
 const { getTemplate, DEFAULT_TEMPLATE } = require("./templates");
 const { withRetry, isTransient } = require("./retry");
+const { setZone } = require("./format");
 
 const FALLBACK_BUSINESS = { name: "Order Tracking", logo: "", template: DEFAULT_TEMPLATE };
 
@@ -27,10 +28,11 @@ const BUSINESS_TTL = 10 * 60 * 1000;
 async function getBusiness() {
     if (_business && Date.now() - _businessAt < BUSINESS_TTL) return _business;
     try {
-        const r = await withRetry(() => pool.query("SELECT name, logo_url, tracker_template FROM settings LIMIT 1"));
+        const r = await withRetry(() => pool.query("SELECT name, logo_url, tracker_template, time_zone FROM settings ORDER BY created_on LIMIT 1"));
         const row = r.rows[0] || {};
         _business = { name: row.name || FALLBACK_BUSINESS.name, logo: row.logo_url || "", template: row.tracker_template || DEFAULT_TEMPLATE };
         _businessAt = Date.now();
+        setZone(row.time_zone);
     } catch (e) {
         console.error("tracker: failed to read settings:", e.message);
         _business = _business || { ...FALLBACK_BUSINESS };

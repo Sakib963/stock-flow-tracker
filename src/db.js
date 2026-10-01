@@ -8,7 +8,10 @@
 // a request runs two tiny indexed SELECTs, one after the other, so `max: 2` is
 // already headroom -- and fails fast on connect so `withRetry` (src/retry.js) can
 // take another swing instead of the customer getting an error page.
-const { Pool } = require("pg");
+const { Pool, types } = require("pg");
+
+// Order times are stored as UTC wall clock; read them as UTC whatever zone this server runs in.
+types.setTypeParser(types.builtins.TIMESTAMP, (value) => new Date(value.replace(" ", "T") + "Z"));
 
 const useSsl = process.env.DB_SSL === "false" ? false : { rejectUnauthorized: false };
 

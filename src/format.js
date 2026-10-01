@@ -8,31 +8,41 @@ const esc = (s) =>
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+// Times show on the business's clock (settings.time_zone), the same for every customer wherever they
+// are, never the clock of the machine this runs on.
+let zone = "Asia/Dhaka";
+const setZone = (next) => {
+    zone = next || "Asia/Dhaka";
+};
+
+// The parts of a moment on the business's clock: day, month (1 to 12), year, hours, minutes.
 const parse = (d) => {
     if (!d) return null;
     const dt = new Date(d);
-    return isNaN(dt.getTime()) ? null : dt;
+    if (isNaN(dt.getTime())) return null;
+    const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: zone, year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric", hourCycle: "h23" }).formatToParts(dt).map((x) => [x.type, Number(x.value)]));
+    return { day: p.day, month: p.month, year: p.year, hours: p.hour, minutes: p.minute };
 };
 
 const clock = (dt) => {
-    let h = dt.getHours();
+    let h = dt.hours;
     const ap = h >= 12 ? "PM" : "AM";
     h = h % 12 || 12;
-    return `${String(h).padStart(2, "0")}:${String(dt.getMinutes()).padStart(2, "0")} ${ap}`;
+    return `${String(h).padStart(2, "0")}:${String(dt.minutes).padStart(2, "0")} ${ap}`;
 };
 
 // 22/08/2026 08:36 AM
 const fmtDate = (d) => {
     const dt = parse(d);
     if (!dt) return "";
-    return `${String(dt.getDate()).padStart(2, "0")}/${String(dt.getMonth() + 1).padStart(2, "0")}/${dt.getFullYear()} ${clock(dt)}`;
+    return `${String(dt.day).padStart(2, "0")}/${String(dt.month).padStart(2, "0")}/${dt.year} ${clock(dt)}`;
 };
 
 // 22 Aug 2026, 08:36 AM
 const fmtDateLong = (d) => {
     const dt = parse(d);
     if (!dt) return "";
-    return `${dt.getDate()} ${MONTHS[dt.getMonth()]} ${dt.getFullYear()}, ${clock(dt)}`;
+    return `${dt.day} ${MONTHS[dt.month - 1]} ${dt.year}, ${clock(dt)}`;
 };
 
 // Inline line-icons (no external assets). Sized by CSS, colored via currentColor.
@@ -65,4 +75,4 @@ const doc = (title, style, body) =>
 const retryLink = (href) =>
     `<a href="${esc(href || "")}" style="display:inline-block;margin-top:18px;padding:10px 22px;border:1.5px solid currentColor;border-radius:999px;color:inherit;font-size:13px;font-weight:600;text-decoration:none;opacity:.75">Try again</a>`;
 
-module.exports = { esc, fmtDate, fmtDateLong, icon, progress, doc, retryLink };
+module.exports = { esc, fmtDate, fmtDateLong, icon, progress, doc, retryLink, setZone };
