@@ -15,9 +15,9 @@ jobs:
         runs-on: ubuntu-latest
         timeout-minutes: 10
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
 
-            - uses: actions/setup-node@v5
+            - uses: actions/setup-node@v7
               with:
                   node-version-file: .nvmrc
                   cache: npm
@@ -51,9 +51,9 @@ jobs:
             VERCEL_ORG_ID: team_cug7jOCNgj5YL7PCFu21b3uP
             VERCEL_PROJECT_ID: prj_MLFLbB89EUvRRWmFjbt98i8qMTXW
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
 
-            - uses: actions/setup-node@v5
+            - uses: actions/setup-node@v7
               with:
                   node-version-file: .nvmrc
 
